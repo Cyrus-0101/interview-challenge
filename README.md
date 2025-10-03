@@ -1,35 +1,5 @@
 # interview-challenge
-
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run 
-```
-
-This project was created using `bun init` in bun v1.2.3. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
-
 # Elevator API System
-
-A comprehensive elevator management system built with Express.js, TypeScript, and SQLite. This system provides real-time elevator control, logging, and monitoring capabilities for a configurable building with multiple elevators.
-
-## 🎯 Challenge Requirements Met
-
-1. Call elevator from any floor to any other floor  
-1. Real-time elevator information (place, state, direction)  
-1. Comprehensive event logging with database storage  
-1. SQL query tracking with source information  
-1. Async elevator movement (5 elevators moving independently)  
-1. Segregated logs by place/state/direction  
-1. Configurable building (floors, timing)  
-1. 2 API endpoints + comprehensive system  
-1. Unit tests with full coverage  
-1. Complete installation and testing documentation
 
 ### Prerequisites
 - [Bun](https://bun.sh) (recommended) or Node.js 20+
@@ -46,7 +16,45 @@ bun run dev
 
 Server runs on `http://localhost:3000`
 
-## 📋 API Endpoints
+A comprehensive elevator management system built with Express.js, TypeScript, and SQLite3. This system provides real-time elevator control, logging, and monitoring capabilities for a configurable building with multiple elevators.
+
+## Challenge Requirements Met
+
+1. Call elevator from any floor to any other floor  
+1. Real-time elevator information (place, state, direction)  
+1. Comprehensive event logging with database storage  
+1. SQL query tracking with source information  
+1. Async elevator movement (5 elevators moving independently)  
+1. Segregated logs by place/state/direction  
+1. Configurable building (floors, timing)  
+1. 2 API endpoints + comprehensive system  
+1. Unit tests with full coverage  
+1. Complete installation and testing documentation
+
+## Challenge Deliverables
+
+### API Endpoints
+1. POST /api/elevator/call - Call elevator between floors
+2. GET /api/elevator/status - Real-time elevator information
+
+### Additional Endpoints
+- GET /api/elevator/logs - Event logging
+- GET /api/elevator/query-logs - SQL query tracking
+- PUT/GET /api/elevator/config - Building configuration
+
+### Unit Tests
+- Comprehensive test suite with Jest
+- Mock database operations
+- Async movement testing
+- Error handling validation
+
+### Documentation
+- Complete README with setup instructions
+- API documentation with examples
+- Architecture explanation
+- Testing guidelines
+
+## API Endpoints
 
 ### 1. Call Elevator
 POST `/api/elevator/call`
@@ -164,7 +172,7 @@ Configuration:
 }
 ```
 
-## 🏗️ System Architecture
+## System Architecture
 
 ### Core Components
 
@@ -179,7 +187,7 @@ Configuration:
    - Real-time state tracking
    - Event logging for all operations
 
-3. API Routes (`src/routes/elevatorRoutes.ts`)
+3. API Routes (`src/routes/ElevatorRoutes.ts`)
    - RESTful endpoints with error handling
    - Input validation and sanitization
    - Comprehensive response formatting
@@ -227,7 +235,7 @@ CREATE TABLE query_logs (
 );
 ```
 
-## ⚡ Async Movement System
+## Async Movement System
 
 ### How It Works
 - 5 elevators can move independently and simultaneously
@@ -249,18 +257,21 @@ CREATE TABLE query_logs (
 - Door operations: 2 seconds open/close (configurable)
 - Building floors: 10 floors default (configurable)
 
-## 🧪 Testing
+## Testing
 
 ### Run Tests
 ```bash
 # Run all tests
-bun test
+bun run test
 
 # Watch mode for development
 bun run test:watch
 
 # Coverage report
-bun test --coverage
+bun run test:coverage
+
+# Vitest UI
+bun run test:ui
 ```
 
 ### Test Coverage
@@ -274,7 +285,7 @@ bun test --coverage
 - `src/tests/database.test.ts` - Database operations
 - `src/tests/setup.ts` - Test configuration
 
-## 📦 Dependencies
+## Dependencies
 
 ### Production
 ```json
@@ -297,7 +308,7 @@ bun test --coverage
 }
 ```
 
-## 🚀 Production Deployment
+## Production Deployment
 
 ### Build
 ```bash
@@ -314,7 +325,7 @@ bun run start
 PORT=3000  # Server port (optional, defaults to 3000)
 ```
 
-## 📊 Monitoring & Logging
+## Monitoring & Logging
 
 ### Real-time Monitoring
 - Elevator status: Current floor, target, state, direction
@@ -332,7 +343,7 @@ PORT=3000  # Server port (optional, defaults to 3000)
 - By Time: Chronological ordering with timestamps
 - By Source: Track which function made each database call
 
-## 🔧 Configuration
+## Configuration
 
 ### Building Settings
 ```typescript
@@ -348,30 +359,7 @@ interface BuildingConfig {
 - IDs: elevator-1, elevator-2, elevator-3, elevator-4, elevator-5
 - Initial state: All idle, ready for requests
 
-## 🎯 Challenge Deliverables
-
-### API Endpoints
-1. POST /api/elevator/call - Call elevator between floors
-2. GET /api/elevator/status - Real-time elevator information
-
-### Additional Endpoints
-- GET /api/elevator/logs - Event logging
-- GET /api/elevator/query-logs - SQL query tracking
-- PUT/GET /api/elevator/config - Building configuration
-
-### Unit Tests
-- Comprehensive test suite with Jest
-- Mock database operations
-- Async movement testing
-- Error handling validation
-
-### Documentation
-- Complete README with setup instructions
-- API documentation with examples
-- Architecture explanation
-- Testing guidelines
-
-## 🚨 Error Handling
+## Error Handling
 
 ### Validation Errors
 - Invalid floor numbers
@@ -390,44 +378,3 @@ interface BuildingConfig {
   "details": "Additional information"
 }
 ```
-
-## 🔄 Real-time Features
-
-### Live Updates
-- Elevator positions update every 5 seconds
-- State changes logged immediately
-- Database queries tracked in real-time
-
-### Async Operations
-- Multiple elevators moving simultaneously
-- Independent movement timers
-- Non-blocking API responses
-
-## 📈 Performance
-
-### Optimizations
-- Efficient elevator selection algorithm
-- Minimal database queries
-- Async/await for non-blocking operations
-- Connection pooling ready
-
-### Scalability
-- Configurable number of elevators
-- Adjustable building parameters
-- Modular architecture for easy extension
-
----
-
-## 🎓 Learning Objectives
-
-This project demonstrates:
-- Async programming with timers and promises
-- Database design with proper relationships
-- API design with RESTful principles
-- Testing strategies with mocking and coverage
-- Real-time systems with state management
-- Logging and monitoring best practices
-- TypeScript for type safety
-- Error handling and validation
-
-Perfect for understanding complex system architecture and real-world application development!
