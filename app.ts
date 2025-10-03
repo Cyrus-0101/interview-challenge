@@ -18,6 +18,8 @@ app.use(cors());
 
 // Initialize database
 const db = new DatabaseManager();
+await db.initialize();
+
 const elevatorService = new ElevatorService(db);
 const elevatorController = new ElevatorController(elevatorService);
 
