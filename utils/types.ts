@@ -1,3 +1,6 @@
+/**
+ * @brief Elevator interface
+ */
 export interface Elevator {
     id: string;
     currentFloor: number;
@@ -8,6 +11,9 @@ export interface Elevator {
     lastUpdated: Date;
 }
 
+/**
+ * @brief Elevator log interface
+ */
 export interface ElevatorLog {
     id: string;
     elevatorId: string;
@@ -20,6 +26,9 @@ export interface ElevatorLog {
     details: string;
 }
   
+/**
+ * @brief Query log interface
+ */
 export interface QueryLog {
     id: string;
     query: string;
@@ -28,3 +37,21 @@ export interface QueryLog {
     source: string;
     parameters?: string;
 }
+
+/**
+ * @brief Building config interface
+ */
+export interface BuildingConfig {
+    totalFloors: number;
+    floorMoveTime: number; // seconds
+    doorOpenCloseTime: number; // seconds
+  }
+  
+  /**
+   * @brief Elevator request interface
+   */
+  export interface ElevatorRequest {
+    fromFloor: number;
+    toFloor: number;
+    requestedBy?: string;
+  }
