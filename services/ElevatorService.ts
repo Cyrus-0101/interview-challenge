@@ -1,18 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { DatabaseManager } from '../Database/DatabaseManager';
-import type { Elevator, ElevatorLog } from '../utils/types';
-
-export interface BuildingConfig {
-  totalFloors: number;
-  floorMoveTime: number; // seconds
-  doorOpenCloseTime: number; // seconds
-}
-
-export interface ElevatorRequest {
-  fromFloor: number;
-  toFloor: number;
-  requestedBy?: string;
-}
+import type { BuildingConfig, Elevator, ElevatorLog, ElevatorRequest } from '../utils/types';
 
 export class ElevatorService {
   private db: DatabaseManager;
