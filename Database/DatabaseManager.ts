@@ -36,9 +36,11 @@ export class DatabaseManager {
     this.run = promisify(this.db.run.bind(this.db));
     this.get = promisify(this.db.get.bind(this.db));
     this.all = promisify(this.db.all.bind(this.db));
+  }
 
-    // Initialize the database
-    this.initializeDatabase();
+  // Initialize the database
+  async initialize(): Promise<void> {
+    await this.initializeDatabase();
   }
 
   /**
@@ -305,7 +307,7 @@ export class DatabaseManager {
    * @param row - The row to map
    * @returns The elevator
    */
-    private mapRowToElevator(row: any): Elevator {
+  private mapRowToElevator(row: any): Elevator {
     return {
       id: row.id,
       currentFloor: row.current_floor,
