@@ -1,6 +1,7 @@
 import Database from "sqlite3";
 import { promisify } from "util";
 import type { Elevator, ElevatorLog, QueryLog } from "../utils/types";
+import type { WebSocketService } from "../services/WebSocketService";
 
 /**
  * @brief Database manager class
@@ -26,7 +27,8 @@ export class DatabaseManager {
    */
   private all: (sql: string, params?: any[]) => Promise<any[]>;
 
-  constructor() {
+  private wsService?: WebSocketService;
+  constructor(wsService?: WebSocketService) {
     // Path to the database
     this.db = new Database.Database(
       process.env.DB_PATH || "./Database/Elevator.db"
@@ -36,6 +38,7 @@ export class DatabaseManager {
     this.run = promisify(this.db.run.bind(this.db));
     this.get = promisify(this.db.get.bind(this.db));
     this.all = promisify(this.db.all.bind(this.db));
+    this.wsService = wsService;
   }
 
   // Initialize the database
@@ -145,20 +148,33 @@ export class DatabaseManager {
     parameters?: any
   ) {
     const id = `query-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const queryLog = {
+      id,
+      query,
+      executedBy,
+      executedAt: new Date().toISOString(),
+      source,
+      parameters: JSON.stringify(parameters)
+    };
+
     await this.run(
       `
       INSERT INTO query_logs (id, query, executed_by, executed_at, source, parameters)
       VALUES (?, ?, ?, ?, ?, ?)
     `,
       [
-        id,
-        query,
-        executedBy,
-        new Date().toISOString(),
-        source,
-        JSON.stringify(parameters),
+        queryLog.id,
+        queryLog.query,
+        queryLog.executedBy,
+        queryLog.executedAt,
+        queryLog.source,
+        queryLog.parameters,
       ]
     );
+
+    if (this.wsService) {
+      this.wsService.broadcastQueryLog(queryLog);
+    }
   }
 
   /**
@@ -235,6 +251,11 @@ export class DatabaseManager {
    */
   async logElevatorEvent(log: Omit<ElevatorLog, "id">): Promise<void> {
     const id = `log-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const logEntry = {
+      id,
+      ...log,
+    };
+
     await this.run(
       `
       INSERT INTO elevator_logs (id, elevator_id, event, from_floor, to_floor, state, direction, timestamp, details)
@@ -252,6 +273,10 @@ export class DatabaseManager {
         log.details,
       ]
     );
+
+    if (this.wsService) {
+      this.wsService.broadcastElevatorLog(logEntry as any);
+    }
   }
 
   /**
