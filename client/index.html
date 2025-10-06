@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>Elevator Real-Time Monitor</title>
+    
+</head>
+<body>
+    <div class="container">
+        <h1>Elevator Real-Time Monitor</h1>
+        
+        <div id="connection-status" class="status disconnected">
+            Disconnected
+        </div>
+
+        <div>
+            <button id="connect-btn">Connect WebSocket</button>
+            <button id="disconnect-btn" disabled>Disconnect</button>
+            <button id="call-elevator-btn">Call Random Elevator</button>
+        </div>
+
+        <h2>Elevators Status</h2>
+        <div id="elevators" class="elevator-grid">
+            <!-- Elevator cards will be inserted here -->
+        </div>
+
+        <h2>Real-Time Event Logs</h2>
+        <div id="logs" class="log-container">
+            <p style="color: #999;">Waiting for events...</p>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        const elevators = new Map();
+
+        const statusEl = document.getElementById('connection-status');
+        const connectBtn = document.getElementById('connect-btn');
+        const disconnectBtn = document.getElementById('disconnect-btn');
+        const callElevatorBtn = document.getElementById('call-elevator-btn');
+        const elevatorsEl = document.getElementById('elevators');
+        const logsEl = document.getElementById('logs');
+
+        function connect() {
+            ws = new WebSocket('ws://localhost:3000/ws');
+
+            ws.onopen = () => {
+                statusEl.className = 'status connected';
+                statusEl.innerHTML = 'Connected to Elevator System';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                addLog('Connected to WebSocket server', 'success');
+            };
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleMessage(message);
+            };
+
+            ws.onclose = () => {
+                statusEl.className = 'status disconnected';
+                statusEl.innerHTML = 'Disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                addLog('Disconnected from server', 'error');
+            };
+
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                addLog('WebSocket error occurred', 'error');
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function handleMessage(message) {
+            switch (message.type) {
+                case 'connected':
+                    addLog(message.data.message, 'success');
+                    break;
+                
+                case 'elevator_update':
+                    updateElevator(message.data);
+                    break;
+                
+                case 'elevator_log':
+                    addLog(message.data.details, 'info');
+                    break;
+                
+                case 'query_log':
+                    addLog(`SQL: ${message.data.query}`, 'info');
+                    break;
+                
+                case 'error':
+                    addLog(message.data.message, 'error');
+                    break;
+            }
+        }
+
+        function updateElevator(elevator) {
+            elevators.set(elevator.id, elevator);
+            renderElevators();
+        }
+
+        function renderElevators() {
+            elevatorsEl.innerHTML = Array.from(elevators.values())
+                .map(e => `
+                    <div class="elevator-card ${e.isMoving ? 'moving' : 'idle'}">
+                        <h3>${e.id}</h3>
+                        <p><strong>Floor:</strong> ${e.currentFloor}</p>
+                        <p><strong>Target:</strong> ${e.targetFloor || 'None'}</p>
+                        <p><strong>State:</strong> ${e.state}</p>
+                        <p><strong>Direction:</strong> ${e.direction || 'N/A'}</p>
+                        <p><strong>Moving:</strong> ${e.isMoving ? 'Yes' : 'No'}</p>
+                    </div>
+                `)
+                .join('');
+        }
+
+        function addLog(message, type = 'info') {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong> - ${message}`;
+            logsEl.insertBefore(logEntry, logsEl.firstChild);
+            
+            // Keep only last 50 logs
+            while (logsEl.children.length > 50) {
+                logsEl.removeChild(logsEl.lastChild);
+            }
+        }
+
+        async function callRandomElevator() {
+            const fromFloor = Math.floor(Math.random() * 10) + 1;
+            let toFloor = Math.floor(Math.random() * 10) + 1;
+            while (toFloor === fromFloor) {
+                toFloor = Math.floor(Math.random() * 10) + 1;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/elevator/call', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fromFloor, toFloor, requestedBy: 'web-client' })
+                });
+                
+                const data = await response.json();
+                addLog(`Called elevator from floor ${fromFloor} to ${toFloor}`, 'success');
+            } catch (error) {
+                addLog('Failed to call elevator: ' + error.message, 'error');
+            }
+        }
+
+        connectBtn.addEventListener('click', connect);
+        disconnectBtn.addEventListener('click', disconnect);
+        callElevatorBtn.addEventListener('click', callRandomElevator);
+
+        // Auto-connect on page load
+        connect();
+    </script>
+</body>
+</html>
